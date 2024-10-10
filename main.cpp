@@ -1,6 +1,15 @@
 #include <iostream>
-#include "SDL.h"
-#include "SDL_render.h"
+
+#ifdef __linux__ 
+#   include "SDL2/SDL.h"
+#   include "SDL2/SDL_render.h"
+#elif _WIN32
+    // windows code goes here
+#elif __APPLE__
+#   include "SDL.h"
+#   include "SDL_render.h"
+#endif
+
 
 // player cant escape from window
 void inWindow(SDL_Rect *player, int *w, int *h){
@@ -74,22 +83,22 @@ int main()
         // move downwards and toches Window down
         if (speed.y > 0 && (ball.y+ball.h) >= h) { // nach unten
             speed.y *= -1;
-            std::cout << "DW + TD" << std::endl;
+            //std::cout << "DW + TD" << std::endl;
         }
         //move upwards and touches window up
         if (speed.y < 0 && ball.y <= 0){ // nach oben
             speed.y *= -1;
-            std::cout << "UW + TU" << std::endl;
+            //std::cout << "UW + TU" << std::endl;
         }
         // moves left and touches left
         if (speed.x < 0 && ball.x <= 0){
             speed.x *= -1;
-            std::cout << "L + TL" << std::endl;
+            //std::cout << "L + TL" << std::endl;
         }
         // moves right and touches right
         if (speed.x > 0 && (ball.x+ball.w) >= w ){
             speed.x *= -1;
-            std::cout << "R + TR" << std::endl;
+            //std::cout << "R + TR" << std::endl;
         }
 
         ball.x += speed.x;
