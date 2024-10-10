@@ -1,123 +1,86 @@
 #include <iostream>
 #include "SDL.h"
-#include "SDL_image.h"
+#include "SDL_render.h"
 
-#define fps 60
+int main()
+{
+    int w = 680;
+    int h = 480;
 
-// You shouldn't really use this statement, but it's fine for small programs
-using namespace std;
-
-// You must include the command line parameters for your main function to be recognized by SDL
-int main(int argc, char** args) {
-
-    // Pointers to our window and surface
-    SDL_Surface *winSurface = NULL;
-    SDL_Window *window = NULL;
-
-    // Initialize SDL. SDL_Init will return -1 if it fails.
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        cout << "Error initializing SDL: " << SDL_GetError() << endl;
-        system("sleep 5");
-        // End the program
-        return 1;
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    {
+        std::cout << "Failed to initialize the SDL2 library\n";
+        return -1;
     }
 
-    // Initialize SDL-PNG LIB
-    if (IMG_Init(IMG_INIT_PNG) == 0) {
-        cout << "Error SDL2_image Initialization";
-        return 2;
+    SDL_Window *window = SDL_CreateWindow("SDL2 Window",
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          w, h,
+                                          SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+
+    if(!window){
+        std::cout << "Failed to create window\n";
+        return -1;
     }
 
-    // Create our window
-    window = SDL_CreateWindow(
-            "Example",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            1280,
-            720,
-            SDL_WINDOW_SHOWN
-            );
+    SDL_Renderer * renderer = SDL_CreateRenderer(window,-1, SDL_RENDERER_PRESENTVSYNC);
 
-    // Make sure creating the window succeeded
-    if (!window) {
-        cout << "Error creating window: " << SDL_GetError() << endl;
-        // End the program
-        return 1;
-    }
-
-    // create renderer
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) {
-        std::cout << "Error renderer creation";
-        return 4;
-    }
-    // Get the surface from the window
-    winSurface = SDL_GetWindowSurface(window);
-
-    // Make sure getting the surface succeeded
-    if (!winSurface) {
-        cout << "Error getting surface: " << SDL_GetError() << endl;
-        // End the program
-        return 1;
-    }
-
-    SDL_Surface* image_sur = IMG_Load("image.png");
-    if (image_sur == NULL) {
-        std::cout << "Error loading image: " << IMG_GetError();
-        return 5;
-    }
+    SDL_Rect rect = {20,20,20,20};
+    while (true) {
+        SDL_PumpEvents(); // frage nach Input
 
 
-    SDL_Texture* image_tex = SDL_CreateTextureFromSurface(renderer, image_sur);
-    if (image_tex == NULL) {
-        std::cout << "Error creating texture";
-        return 6;
-    }
+        const Uint8 * keystate = SDL_GetKeyboardState( nullptr );
 
-    SDL_FreeSurface(image_sur);
-
-    Uint32 white = SDL_MapRGB(winSurface->format, 255, 255, 255);
-    SDL_FillRect(winSurface, NULL, white);
-
-    SDL_UpdateWindowSurface(window);
-
-    Uint32 starting_tick;
-    SDL_Event event;
-    bool running = true;
-    while (running) {
-        starting_tick = SDL_GetTicks();
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-                break;
-            }
-            if (event.type == SDL_WINDOWEVENT) {
-                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-                    winSurface = SDL_GetWindowSurface(window);
-                    SDL_FillRect(winSurface, NULL, white);
-                    SDL_UpdateWindowSurface(window);
-                }
-            }
-            if ((1000 / fps) > SDL_GetTicks() - starting_tick) {
-                SDL_Delay(1000 / fps - (SDL_GetTicks() - starting_tick));
-            }
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, image_tex, NULL, NULL);
-            SDL_RenderPresent(renderer);
-
+        if (keystate[SDL_SCANCODE_Q]){
+            break;
         }
 
+        //Fullscreen Toggle
+        if (keystate[SDL_SCANCODE_F]){
+            if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+                // Exit fullscreen
+                SDL_SetWindowFullscreen(window, 0);
+            } else {
+                // Enter fullscreen
+                SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
+            }
+        }
+
+
+
+        rect.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
+        rect.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
+        rect.y += keystate[SDL_SCANCODE_S]; // nach Unten
+        rect.y -= keystate[SDL_SCANCODE_W]; // nach oben
+
+        // Berechne w und h des Windows
+        SDL_GetWindowSize(window,&w,&h);
+
+        // Rechteck kann nicht außerhalb des Fensters
+        rect.x = std::max(0,rect.x);
+        rect.x = std::min(w-rect.w,rect.x);
+        rect.y = std::max(0,rect.y);
+        rect.y = std::min(h-rect.w,rect.y);
+
+        SDL_SetRenderDrawColor( renderer, 0,0,0,255);
+        SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor( renderer, 255, 0,0,255);
+        SDL_RenderFillRect( renderer, &rect);
+        SDL_RenderPresent(renderer); // show rendered frame
+
+#if 0
+    //zwei objecte berühren sich
+    if(SDL_HasIntersection(obj1,obj2))
+    if(SDL_HasIntersectionF(obj1,obj2))
+#endif
     }
-    SDL_DestroyTexture(image_tex);
 
     SDL_DestroyRenderer(renderer);
-    // Destroy the window. This will also destroy the surface
-    SDL_DestroyWindow(window);
-    // Quit SQL_Image
-    IMG_Quit();
-    // Quit SDL
+
     SDL_Quit();
 
-    // End the program
     return 0;
 }
