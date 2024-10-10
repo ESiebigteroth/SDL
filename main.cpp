@@ -2,6 +2,13 @@
 #include "SDL.h"
 #include "SDL_render.h"
 
+void inWindow(SDL_Rect *player, int *w, int *h){
+    player->x = std::max(0, player->x);
+    player->x = std::min(*w - player->w, player->x);
+    player->y = std::max(0, player->y);
+    player->y = std::min(*h - player->w, player->y);
+}
+
 int main()
 {
     int w = 680;
@@ -26,7 +33,8 @@ int main()
 
     SDL_Renderer * renderer = SDL_CreateRenderer(window,-1, SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Rect rect = {20,20,20,20};
+    SDL_Rect player1 = {20, 20, 20, 20};
+    SDL_Rect player2 = {w-20, 20, 20, 20};
     while (true) {
         SDL_PumpEvents(); // frage nach Input
 
@@ -48,27 +56,30 @@ int main()
             }
         }
 
+        player1.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
+        player1.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
+        player1.y += keystate[SDL_SCANCODE_S]; // nach Unten
+        player1.y -= keystate[SDL_SCANCODE_W]; // nach oben
 
-
-        rect.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
-        rect.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
-        rect.y += keystate[SDL_SCANCODE_S]; // nach Unten
-        rect.y -= keystate[SDL_SCANCODE_W]; // nach oben
+        player2.x += keystate[SDL_SCANCODE_L]; // Bewegen des Rechtecks
+        player2.x -= keystate[SDL_SCANCODE_J]; // Bewegen nach Links
+        player2.y += keystate[SDL_SCANCODE_K]; // nach Unten
+        player2.y -= keystate[SDL_SCANCODE_I]; // nach oben
 
         // Berechne w und h des Windows
         SDL_GetWindowSize(window,&w,&h);
 
         // Rechteck kann nicht außerhalb des Fensters
-        rect.x = std::max(0,rect.x);
-        rect.x = std::min(w-rect.w,rect.x);
-        rect.y = std::max(0,rect.y);
-        rect.y = std::min(h-rect.w,rect.y);
+        inWindow(&player1,&w,&h);
+        inWindow(&player2,&w,&h);
+
 
         SDL_SetRenderDrawColor( renderer, 0,0,0,255);
         SDL_RenderClear(renderer);
 
         SDL_SetRenderDrawColor( renderer, 255, 0,0,255);
-        SDL_RenderFillRect( renderer, &rect);
+        SDL_RenderFillRect( renderer, &player1);
+        SDL_RenderFillRect( renderer , &player2);
         SDL_RenderPresent(renderer); // show rendered frame
 
 #if 0
