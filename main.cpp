@@ -62,49 +62,58 @@ int main()
             if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
                 // Exit fullscreen
                 SDL_SetWindowFullscreen(window, 0);
+                SDL_GetWindowSize(window,&w,&h);
             } else {
                 // Enter fullscreen
                 SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
+                SDL_GetWindowSize(window,&w,&h);
+                player2.x = w-ball.w-40;
             }
         }
 
         //player 1 steuerung
-        player1.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
-        player1.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
+        //player1.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
+        //player1.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
         player1.y += keystate[SDL_SCANCODE_S]; // nach Unten
         player1.y -= keystate[SDL_SCANCODE_W]; // nach oben
 
         //player 2 steuerung
-        player2.x += keystate[SDL_SCANCODE_L]; // Bewegen des Rechtecks
-        player2.x -= keystate[SDL_SCANCODE_J]; // Bewegen nach Links
+        //player2.x += keystate[SDL_SCANCODE_L]; // Bewegen des Rechtecks
+        //player2.x -= keystate[SDL_SCANCODE_J]; // Bewegen nach Links
         player2.y += keystate[SDL_SCANCODE_K]; // nach Unten
         player2.y -= keystate[SDL_SCANCODE_I]; // nach oben
 
         // move downwards and toches Window down
         if (speed.y > 0 && (ball.y+ball.h) >= h) { // nach unten
             speed.y *= -1;
+            ball.y = h-ball.h;
             //std::cout << "DW + TD" << std::endl;
         }
         //move upwards and touches window up
         if (speed.y < 0 && ball.y <= 0){ // nach oben
             speed.y *= -1;
+            ball.y = 0;
             //std::cout << "UW + TU" << std::endl;
         }
         // moves left and touches left
         if (speed.x < 0 && ball.x <= 0){
             speed.x *= -1;
+            ball.x = 0;
             //std::cout << "L + TL" << std::endl;
         }
         // moves right and touches right
         if (speed.x > 0 && (ball.x+ball.w) >= w ){
             speed.x *= -1;
+            ball.x = w-ball.w;
             //std::cout << "R + TR" << std::endl;
+        }
+
+        if(SDL_HasIntersection(&player1,&ball) or SDL_HasIntersection(&player2,&ball)){
+            speed.x *= -1;
         }
 
         ball.x += speed.x;
         ball.y += speed.y;
-
-
 
         // Berechne w und h des Windows
         SDL_GetWindowSize(window,&w,&h);
@@ -122,14 +131,15 @@ int main()
         SDL_RenderFillRect( renderer, &ball);
         SDL_RenderPresent(renderer); // show rendered frame
 
-#if 0
+
     //zwei objecte berühren sich
-    if(SDL_HasIntersection(obj1,obj2))
-    if(SDL_HasIntersectionF(obj1,obj2))
-#endif
+    
+
     }
 
     SDL_DestroyRenderer(renderer);
+
+    SDL_DestroyWindow(window);
 
     SDL_Quit();
 
