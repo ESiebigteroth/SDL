@@ -23,6 +23,8 @@ int main()
 {
     int w = 680;
     int h = 480;
+    int Score1 = 0;
+    int Score2 = 0;
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
@@ -45,7 +47,7 @@ int main()
 
     SDL_Rect player1 = {20, 20, 20, 80};
     SDL_Rect player2 = {w-40, 20, 20, 80};
-    SDL_Rect ball = {40,40,20,20};
+    SDL_Rect ball = {w/2,h/2,20,20};
     SDL_Point speed = {1,2};
 
     while (true) {
@@ -97,15 +99,25 @@ int main()
         }
         // moves left and touches left
         if (speed.x < 0 && ball.x <= 0){
-            speed.x *= -1;
-            ball.x = 0;
+            //speed.x *= -1;
+            //ball.x = 0;
             //std::cout << "L + TL" << std::endl;
+            std::cout << "Player 2 goal" << std::endl;
+            Score2++;
+            ball.x = w/2;
+            ball.y = h/2;
+            speed.x *= -1;
         }
         // moves right and touches right
         if (speed.x > 0 && (ball.x+ball.w) >= w ){
-            speed.x *= -1;
-            ball.x = w-ball.w;
+            //speed.x *= -1;
+            //ball.x = w-ball.w;
             //std::cout << "R + TR" << std::endl;
+            std::cout << "Player 1 goal" << std::endl;
+            Score1++;
+            ball.x = w/2;
+            ball.y = h/2;
+            speed.x *= -1;
         }
 
         if(SDL_HasIntersection(&player1,&ball) or SDL_HasIntersection(&player2,&ball)){
@@ -142,6 +154,9 @@ int main()
     SDL_DestroyWindow(window);
 
     SDL_Quit();
+
+    std::cout << "Score Player 1: " << Score1 << std::endl;
+    std::cout << "Score Player 2: " << Score2 << std::endl;
 
     return 0;
 }
