@@ -45,9 +45,9 @@ int main()
 
     SDL_Renderer * renderer = SDL_CreateRenderer(window,-1, SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Rect player1 = {20, 20, 20, 80};
-    SDL_Rect player2 = {w-40, 20, 20, 80};
-    SDL_Rect ball = {w/2,h/2,20,20};
+    SDL_Rect player1 = {20, h/2-h/12, 20, h/6};
+    SDL_Rect player2 = {w-40, h/2-h/12, 20, player1.h};
+    SDL_Rect ball = {w/2,h/2,h/30,h/30};
     SDL_Point speed = {1,2};
 
     while (true) {
@@ -65,12 +65,24 @@ int main()
                 // Exit fullscreen
                 SDL_SetWindowFullscreen(window, 0);
                 SDL_GetWindowSize(window,&w,&h);
+                player1.h = h/6;
+                player2.h = h/6;
+                ball.h = h/30;
+                ball.w = h/30;
+                player2.x = w-ball.w-40;
+                //TODO speed des balls erhöhen
             } else {
                 // Enter fullscreen
                 SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
                 SDL_GetWindowSize(window,&w,&h);
+                player1.h = h/6;
+                player2.h = h/6;
+                ball.h = h/30;
+                ball.w = h/30;
                 player2.x = w-ball.w-40;
+                //TODO speed des balls veringern
             }
+            std::cout << "hoehe: " << h << std::endl;
         }
 
         //player 1 steuerung
