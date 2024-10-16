@@ -47,6 +47,8 @@ int main()
 
     SDL_Rect player1 = {20, h/2-h/12, 20, h/6};
     SDL_Rect player2 = {w-40, h/2-h/12, 20, player1.h};
+    SDL_Rect player1hb = {player1.x+player1.w,player1.y,1,player1.h};
+    SDL_Rect player2hb = {player2.x,player2.y,1,player2.h};
     SDL_Rect ball = {w/2,h/2,h/30,h/30};
     SDL_Point speed = {1,2};
 
@@ -86,16 +88,14 @@ int main()
         }
 
         //player 1 steuerung
-        //player1.x += keystate[SDL_SCANCODE_D]; // Bewegen des Rechtecks
-        //player1.x -= keystate[SDL_SCANCODE_A]; // Bewegen nach Links
         player1.y += keystate[SDL_SCANCODE_S]; // nach Unten
         player1.y -= keystate[SDL_SCANCODE_W]; // nach oben
+        player1hb.y = player1.y;
 
         //player 2 steuerung
-        //player2.x += keystate[SDL_SCANCODE_L]; // Bewegen des Rechtecks
-        //player2.x -= keystate[SDL_SCANCODE_J]; // Bewegen nach Links
         player2.y += keystate[SDL_SCANCODE_K]; // nach Unten
         player2.y -= keystate[SDL_SCANCODE_I]; // nach oben
+        player2hb.y = player2.y;
 
         // move downwards and toches Window down
         if (speed.y > 0 && (ball.y+ball.h) >= h) { // nach unten
@@ -132,8 +132,20 @@ int main()
             speed.x *= -1;
         }
 
-        if(SDL_HasIntersection(&player1,&ball) or SDL_HasIntersection(&player2,&ball)){
-            speed.x *= -1;
+        if(SDL_HasIntersection(&player1hb,&ball) or SDL_HasIntersection(&player2hb,&ball)){
+            if (ball.x < (w/2)){
+                // ball links
+                if ((ball.y > player1hb.y) and ((ball.y+ball.h) < player1hb.y+player1hb.h )) {
+                    std::cout << "L HIT" << std::endl;
+                    speed.x *= -1;
+                }
+            }
+            if (ball.x > (w/2)){
+                if ((ball.y > player2hb.y) and ((ball.y+ball.h) < player2hb.y+player2hb.h )) {
+                    std::cout << "R HIT" << std::endl;
+                    speed.x *= -1;
+                }
+            }
         }
 
         ball.x += speed.x;
