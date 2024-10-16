@@ -21,6 +21,8 @@ void inWindow(SDL_Rect *player, int *w, int *h){
 
 int main()
 {
+    int wold=0;
+    int hold=0;
     int w = 680;
     int h = 480;
     int Score1 = 0;
@@ -63,28 +65,34 @@ int main()
 
         //Fullscreen Toggle
         if (keystate[SDL_SCANCODE_F]){
+            wold = w;
+            hold = h;
             if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
                 // Exit fullscreen
                 SDL_SetWindowFullscreen(window, 0);
-                SDL_GetWindowSize(window,&w,&h);
-                player1.h = h/6;
-                player2.h = h/6;
-                ball.h = h/30;
-                ball.w = h/30;
-                player2.x = w-ball.w-40;
                 //TODO speed des balls erhöhen
             } else {
                 // Enter fullscreen
                 SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
-                SDL_GetWindowSize(window,&w,&h);
-                player1.h = h/6;
-                player2.h = h/6;
-                ball.h = h/30;
-                ball.w = h/30;
-                player2.x = w-ball.w-40;
                 //TODO speed des balls veringern
             }
-            std::cout << "hoehe: " << h << std::endl;
+            SDL_GetWindowSize(window,&w,&h);
+            //std::cout << "width: " << w << " height: " << h << std::endl;
+            player1.h = h/6;
+            player1hb.h = player1.h;
+            player2.h = h/6;
+            player2hb.h = player2.h;
+            ball.h = h/30;
+            ball.w = h/30;
+            player2.x = w-player2.w-20;
+            player2hb.x = player2.x;
+            std::cout << "W old: " << wold << " W new: " << w << std::endl;
+            std::cout << "H old: " << hold << " H new: " << h << std::endl;
+            player1.y = ((double )player1.y / hold) * h;
+            player2.y = ((double )player2.y / hold) * h;
+            ball.x = ((double )ball.x / wold) * w;
+            ball.y = ((double )ball.y / hold) * h;
+
         }
 
         //player 1 steuerung
@@ -132,19 +140,16 @@ int main()
             speed.x *= -1;
         }
 
-        if(SDL_HasIntersection(&player1hb,&ball) or SDL_HasIntersection(&player2hb,&ball)){
-            if (ball.x < (w/2)){
-                // ball links
-                if ((ball.y > player1hb.y) and ((ball.y+ball.h) < player1hb.y+player1hb.h )) {
-                    std::cout << "L HIT" << std::endl;
-                    speed.x *= -1;
-                }
+        if(SDL_HasIntersection(&player1hb,&ball)){
+            if ((ball.y > player1hb.y) and ((ball.y+ball.h) < player1hb.y+player1hb.h )) {
+                std::cout << "L HIT" << std::endl;
+                speed.x *= -1;
             }
-            if (ball.x > (w/2)){
-                if ((ball.y > player2hb.y) and ((ball.y+ball.h) < player2hb.y+player2hb.h )) {
-                    std::cout << "R HIT" << std::endl;
-                    speed.x *= -1;
-                }
+        }
+        if( SDL_HasIntersection(&player2hb,&ball)){
+            if ((ball.y > player2hb.y) and ((ball.y+ball.h) < player2hb.y+player2hb.h )) {
+                std::cout << "R HIT" << std::endl;
+                speed.x *= -1;
             }
         }
 
@@ -166,10 +171,6 @@ int main()
         SDL_RenderFillRect( renderer , &player2);
         SDL_RenderFillRect( renderer, &ball);
         SDL_RenderPresent(renderer); // show rendered frame
-
-
-    //zwei objecte berühren sich
-    
 
     }
 
